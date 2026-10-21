@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>我的看盤頁</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0f1115;color:#d6d9e0;font-family:system-ui,"Noto Sans TC",sans-serif}
+header{padding:10px 14px;font-size:17px;font-weight:600;border-bottom:1px solid #222}
+.wrap{display:flex;flex-direction:column;gap:10px;padding:10px}
+.card{background:#151821;border:1px solid #232733;border-radius:8px;padding:10px}
+h3{margin:2px 0 8px;font-size:14px;color:#9aa3b5}
+.tabs{display:flex;gap:6px;margin-bottom:8px}
+.tabs button,.btns button,.f button{background:#1e2330;color:#d6d9e0;border:1px solid #2c3243;border-radius:6px;cursor:pointer;font-size:14px;min-height:40px;padding:6px 12px}
+.tabs button{flex:1}.on{background:#2962ff!important;border-color:#2962ff!important;color:#fff!important}
+.btns{display:flex;flex-wrap:wrap;gap:6px}.btns button{min-width:56px}
+.lbl{width:100%;font-size:12px;color:#6b7385;margin-top:4px}
+#quotes{height:520px}#chart{height:60vh;min-height:360px;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;text-align:right;border-bottom:1px solid #232733}td:first-child,th:first-child{text-align:left}
+.f{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.f input{flex:1;min-width:80px;min-height:40px;background:#0f1115;color:#d6d9e0;border:1px solid #2c3243;border-radius:6px;padding:6px;font-size:14px}
+.x{background:none;border:none;color:#e05561;font-size:16px;cursor:pointer}.note{font-size:11px;color:#6b7385;margin-top:6px}
+a{color:#5b8cff}
+@media(min-width:960px){.wrap{display:grid;grid-template-columns:440px 1fr;align-items:start}.side{grid-row:1}#hc{grid-column:1;grid-row:2}#cc{grid-column:2;grid-row:1/3}#chart{height:70vh}}
+</style></head><body>
+<header>📈 我的看盤頁</header>
+<div class="wrap">
+ <div class="side">
+  <div class="card"><h3>報價</h3><div class="tabs" id="tabs"></div><div id="quotes"></div></div>
+ </div>
+ <div class="card" id="cc"><h3>線圖 — 點代號切換</h3><div class="btns" id="btns"></div><div id="chart"></div></div>
+<div class="card" id="hc"><h3>持股（只存在這台裝置）</h3><div id="holdings"></div>
+   <form class="f" id="hf"><input id="ht" placeholder="代號 如 NASDAQ:GOOG" required><input id="hq" type="number" step="any" placeholder="股數" required><input id="ha" type="number" step="any" placeholder="均價" required><button>新增/更新</button></form>
+      <div class="note" id="st">持股只存在這台裝置的 localStorage，不會上傳。價格為最近一個美股交易日收盤價（prices.json，每天台北 06:30 自動更新）。</div></div>
+</div>
+<script>
+// ===== 可編輯區 =====
+const GROUPS = [
+ {name:"第一群組", symbols:["NASDAQ:SPCX","NASDAQ:TSLA","NASDAQ:NVDA","NASDAQ:GOOG","NASDAQ:QQQ","NASDAQ:PLTR","NASDAQ:INTC","NASDAQ:AMZN","NYSE:CRM","NYSE:ORCL","NASDAQ:META","NASDAQ:MSFT","NASDAQ:MU"]},
+ {name:"第二群組", symbols:["NYSE:RDW","NASDAQ:LUNR","NASDAQ:MNTS","NYSE:PL","NASDAQ:RKLB","NYSE:FIG","NYSE:P","NYSE:BBAI"]},
+];
+// ====================
+const $=id=>document.getElementById(id), short=s=>s.split(':').pop();
+function embed(el,name,cfg){
+ el.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%"></div></div>';
+ const s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-'+name+'.js';s.async=true;
+ s.textContent=JSON.stringify(cfg);el.firstChild.appendChild(s);}
+function quotes(i){[...$('tabs').children].forEach((b,j)=>b.classList.toggle('on',i===j));
+ embed($('quotes'),'market-quotes',{width:"100%",height:"100%",colorTheme:"dark",isTransparent:true,locale:"zh_TW",showSymbolLogo:true,
+  symbolsGroups:[{name:GROUPS[i].name,symbols:GROUPS[i].symbols.map(x=>({name:x,displayName:short(x)}))}]});}
+function chart(sym,init){document.querySelectorAll('#btns button').forEach(b=>b.classList.toggle('on',b.dataset.s===sym));
+ embed($('chart'),'advanced-chart',{autosize:true,symbol:sym,interval:"D",timezone:"Asia/Taipei",theme:"dark",style:"1",locale:"zh_TW",allow_symbol_change:true,withdateranges:true,calendar:false});
+ if(!init&&innerWidth<960)$('chart').scrollIntoView({behavior:'smooth',block:'start'});}
+GROUPS.forEach((g,i)=>{const t=document.createElement('button');t.textContent=g.name;t.onclick=()=>quotes(i);$('tabs').appendChild(t);
+ const l=document.createElement('div');l.className='lbl';l.textContent=g.name;$('btns').appendChild(l);
+ g.symbols.forEach(x=>{const b=document.createElement('button');b.textContent=short(x);b.dataset.s=x;b.onclick=()=>chart(x);$('btns').appendChild(b)});});
+// 持股 (localStorage)
+const KEY='watchlist.holdings';const load=()=>JSON.parse(localStorage.getItem(KEY)||'[]'),save=h=>localStorage.setItem(KEY,JSON.stringify(h));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+let PX={};
+async function refresh(){try{const r=await fetch('prices.json?t='+Date.now());const j=await r.json();PX={};const ds=new Set();
+ for(const[k,v]of Object.entries(j.prices)){PX[k]=v.close;ds.add(v.date)}
+ $('st').textContent='收盤價日期：'+[...ds].sort().pop()+'（美東）｜持股只存在這台裝置';}catch(e){$('st').textContent='讀不到 prices.json：'+e}
+ render();}
+const f$=n=>(n<0?'-$':'$')+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});
+function render(){const H=load();if(!H.length){$('holdings').innerHTML='<div class="note">尚無持股，請在下方新增。</div>';return}
+ let tc=0,tv=0,ok=true,h='<table><tr><th>代號</th><th>股數</th><th>均價</th><th>現價</th><th>市值</th><th>損益</th><th></th></tr>';
+ H.forEach((o,i)=>{const c=o.qty*o.avg,p=PX[short(o.s)];tc+=c;let pc='—',mv='—',pl='—';
+  if(p){const v=p*o.qty,d=v-c;tv+=v;pc=p.toFixed(2);mv=f$(v);pl=`<span style="color:${d>=0?'#26a69a':'#ef5350'}">${f$(d)}<br>${(d/c*100).toFixed(2)}%</span>`}else ok=false;
+  h+=`<tr><td><a href="#" data-s="${esc(o.s)}">${esc(short(o.s))}</a></td><td>${o.qty}</td><td>${o.avg.toFixed(2)}</td><td>${pc}</td><td>${mv}</td><td>${pl}</td><td><button class="x" data-i="${i}">✕</button></td></tr>`});
+ const d=tv-tc;h+=`<tr><td>合計</td><td colspan="2">成本 ${f$(tc)}</td><td></td><td>${ok?f$(tv):'—'}</td><td>${ok?`<span style="color:${d>=0?'#26a69a':'#ef5350'}">${f$(d)}<br>${(d/tc*100).toFixed(2)}%</span>`:'—'}</td><td></td></tr></table>`;
+ $('holdings').innerHTML=h;
+ $('holdings').querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();chart(a.dataset.s)});
+ $('holdings').querySelectorAll('.x').forEach(b=>b.onclick=()=>{const H=load();H.splice(+b.dataset.i,1);save(H);render()});}
+setInterval(refresh,30*60000);
+$('hf').onsubmit=e=>{e.preventDefault();let s=$('ht').value.trim().toUpperCase();
+ if(!s.includes(':')){const f=GROUPS.flatMap(g=>g.symbols).find(x=>short(x)===s);if(f)s=f;}
+ const H=load().filter(o=>o.s!==s);H.push({s,qty:+$('hq').value,avg:+$('ha').value});save(H);e.target.reset();refresh();};
+refresh();quotes(0);chart(GROUPS[0].symbols[1],true);
+</script></body></html>
