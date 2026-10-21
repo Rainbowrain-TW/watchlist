@@ -1,128 +1,128 @@
 {
- "updated": "2026-10-21T14:20:47+00:00",
+ "updated": "2026-10-21T14:30:35+00:00",
  "prices": {
   "AMZN": {
-   "close": 260.255,
+   "close": 260.25,
    "prev": 262.63,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "BBAI": {
-   "close": 2.18,
+   "close": 2.176,
    "prev": 2.17,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "CRM": {
-   "close": 240.94,
+   "close": 241.24,
    "prev": 242.43,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "FIG": {
-   "close": 23.2298,
+   "close": 23.245,
    "prev": 22.71,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "GOOG": {
-   "close": 327.0,
+   "close": 327.69,
    "prev": 336.4,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "INTC": {
-   "close": 91.5,
+   "close": 91.74,
    "prev": 91.69,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "LUNR": {
-   "close": 11.245,
+   "close": 11.165,
    "prev": 10.54,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "META": {
-   "close": 705.05,
+   "close": 706.55,
    "prev": 694.25,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "MNTS": {
-   "close": 2.45,
+   "close": 2.44,
    "prev": 2.35,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "MSFT": {
-   "close": 528.54,
+   "close": 529.43,
    "prev": 531.87,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "MU": {
-   "close": 903.74,
+   "close": 909.0,
    "prev": 896.07,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "NVDA": {
-   "close": 218.32,
+   "close": 218.65,
    "prev": 216.47,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "ORCL": {
-   "close": 129.375,
+   "close": 129.67,
    "prev": 131.14,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "P": {
-   "close": 132.32,
+   "close": 132.18,
    "prev": 126.52,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "PL": {
-   "close": 13.875,
+   "close": 13.855,
    "prev": 13.4,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "PLTR": {
-   "close": 197.34,
+   "close": 197.47,
    "prev": 192.6,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "QQQ": {
-   "close": 720.77,
+   "close": 721.7946,
    "prev": 717.63,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "RDW": {
-   "close": 8.58,
+   "close": 8.555,
    "prev": 8.3,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "RKLB": {
-   "close": 53.1985,
+   "close": 53.1,
    "prev": 50.9,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "SPCX": {
-   "close": 162.73,
+   "close": 161.73,
    "prev": 147.79,
    "date": "2026-10-21",
    "src": "yahoo"
   },
   "TSLA": {
-   "close": 385.435,
+   "close": 385.45,
    "prev": 373.71,
    "date": "2026-10-21",
    "src": "yahoo"
