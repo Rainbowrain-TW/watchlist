@@ -13,7 +13,7 @@ h3{margin:2px 0 8px;font-size:14px;color:#9aa3b5}
 .btns{display:flex;flex-wrap:wrap;gap:6px}.btns button{min-width:56px}
 .lbl{width:100%;font-size:12px;color:#6b7385;margin-top:4px}
 #quotes{height:520px}#chart{height:60vh;min-height:360px;margin-top:8px}
-table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;text-align:right;border-bottom:1px solid #232733}td:first-child,th:first-child{text-align:left}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;text-align:right;border-bottom:1px solid #232733}td:first-child,th:first-child{text-align:left}.hq{table-layout:fixed;font-size:12.5px;font-variant-numeric:tabular-nums}.hq th:last-child,.hq td:last-child{width:30px}.hq small{color:#8a93a6;font-size:11px}.hq td{word-break:break-all}
 .f{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.f input{flex:1;min-width:80px;min-height:40px;background:#0f1115;color:#d6d9e0;border:1px solid #2c3243;border-radius:6px;padding:6px;font-size:14px}
 .x{background:none;border:none;color:#e05561;font-size:16px;cursor:pointer}.note{font-size:11px;color:#6b7385;margin-top:6px}
 a{color:#5b8cff}
@@ -32,7 +32,7 @@ a{color:#5b8cff}
  <div id="sp" title="拖曳調整寬度"></div>
  <div class="card" id="cc"><h3>線圖 — 點代號切換</h3><div class="btns" id="btns"></div><div id="chart"></div></div>
 <div class="card" id="hc"><h3>持股（只存在這台裝置）</h3><div id="holdings"></div>
-   <form class="f" id="hf"><input id="ht" placeholder="代號 如 NASDAQ:GOOG" required><input id="hq" type="number" step="any" placeholder="股數" required><input id="ha" type="number" step="any" placeholder="均價" required><button>新增/更新</button></form>
+   <form class="f" id="hf"><input id="ht" placeholder="代號 如 NASDAQ:GOOGL" required><input id="hq" type="number" step="any" placeholder="股數" required><input id="ha" type="number" step="any" placeholder="均價(美元)" required><input id="hx" type="number" step="any" placeholder="買進匯率 31.55"><button>新增/更新</button></form>
       <div class="note" id="st">持股只存在這台裝置的 localStorage，不會上傳。價格為最近一個美股交易日收盤價（prices.json，每天台北 06:30 自動更新）。</div></div>
 </div>
 <script>
@@ -49,13 +49,15 @@ function embed(el,name,cfg){
  s.textContent=JSON.stringify(cfg);el.firstChild.appendChild(s);}
 const MOB=matchMedia('(max-width:959.98px)');let CUR=0,QM=null;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
-let PX={},PXO={};const VERSION='v6';let LQ={},LQT=null,LQM='';
+let PX={},PXO={};const VERSION='v7';let LQ={},LQT=null,LQM='';
 const COLS=[['代號',52],['價格',68],['漲跌',62],['漲跌%',68],['名稱',150],['開盤',64],['最高',64],['最低',64],['昨收',64],['成交量',72]];
-async function live(){const t=GROUPS.flatMap(g=>g.symbols);
+let FX=null,FXT=null;
+async function live(){const t=[...new Set([...GROUPS.flatMap(g=>g.symbols),...load().map(o=>full(o.s))])];
+ fetch('https://scanner.tradingview.com/forex/scan',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({symbols:{tickers:['FX_IDC:USDTWD']},columns:['close']})}).then(r=>r.json()).then(j=>{const v=j.data[0].d[0];if(v){FX=v;FXT=new Date()}render()}).catch(e=>console.warn(e));
  try{const r=await fetch('https://scanner.tradingview.com/america/scan',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({symbols:{tickers:t},columns:['close','change_abs','change','description','open','high','low','volume','update_mode']})});
   const j=await r.json();LQ={};j.data.forEach(o=>{const[c,a,d,n,op,hi,lo,v,m]=o.d;LQ[o.s]={c,a,d,n,op,hi,lo,v,m}});LQT=new Date();LQM='';}
  catch(e){LQM='即時報價讀取失敗，改用收盤價';console.warn(e)}
- mtable(CUR);}
+ mtable(CUR);render();}
 const fp=v=>v==null?'—':v.toFixed(v<10?3:2),fv=v=>v==null?'—':v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':String(v);
 function mtable(i){const g=GROUPS[i];const tw=COLS.reduce((a,c)=>a+c[1],0);
  let h=`<div class="mqs"><table class="mq" style="width:${tw}px"><colgroup>${COLS.map(c=>`<col style="width:${c[1]}px">`).join('')}</colgroup><tr>${COLS.map(c=>`<th>${c[0]}</th>`).join('')}</tr>`;
@@ -76,27 +78,36 @@ GROUPS.forEach((g,i)=>{const t=document.createElement('button');t.textContent=g.
  const l=document.createElement('div');l.className='lbl';l.textContent=g.name;$('btns').appendChild(l);
  g.symbols.forEach(x=>{const b=document.createElement('button');b.textContent=short(x);b.dataset.s=x;b.onclick=()=>chart(x);$('btns').appendChild(b)});});
 // 持股 (localStorage)
-const KEY='watchlist.holdings';const load=()=>JSON.parse(localStorage.getItem(KEY)||'[]'),save=h=>localStorage.setItem(KEY,JSON.stringify(h));
+const KEY='watchlist.holdings',DFX=31.55;const load=()=>JSON.parse(localStorage.getItem(KEY)||'[]'),save=h=>localStorage.setItem(KEY,JSON.stringify(h));
+function full(s){s=String(s).toUpperCase();if(s.includes(':'))return s;return GROUPS.flatMap(g=>g.symbols).find(x=>short(x)===s)||'NASDAQ:'+s}
+// v7 遷移：GOOG → GOOGL（實際持有 A 股）
+(()=>{if(localStorage.getItem('watchlist.mig.v7'))return;const H=load().map(o=>short(o.s)==='GOOG'?{...o,s:'NASDAQ:GOOGL'}:o);if(H.length){save(H);localStorage.setItem('watchlist.mig.v7','1')}})();
 
 async function refresh(){try{const r=await fetch('prices.json?t='+Date.now());const j=await r.json();PX={};const ds=new Set();
  PXO=j.prices;for(const[k,v]of Object.entries(j.prices)){PX[k]=v.close;ds.add(v.date)}
  mtable(CUR);
  $('st').textContent='收盤價日期：'+[...ds].sort().pop()+'（美東）｜持股只存在這台裝置';}catch(e){$('st').textContent='讀不到 prices.json：'+e}
  render();}
-const f$=n=>(n<0?'-$':'$')+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});
-function render(){const H=load();if(!H.length){$('holdings').innerHTML='<div class="note">尚無持股，請在下方新增。</div>';return}
- let tc=0,tv=0,ok=true,h='<table><tr><th>代號</th><th>股數</th><th>均價</th><th>現價</th><th>市值</th><th>損益</th><th></th></tr>';
- H.forEach((o,i)=>{const c=o.qty*o.avg,p=PX[short(o.s)];tc+=c;let pc='—',mv='—',pl='—';
-  if(p){const v=p*o.qty,d=v-c;tv+=v;pc=p.toFixed(2);mv=f$(v);pl=`<span style="color:${d>=0?'#26a69a':'#ef5350'}">${f$(d)}<br>${(d/c*100).toFixed(2)}%</span>`}else ok=false;
-  h+=`<tr><td><a href="#" data-s="${esc(o.s)}">${esc(short(o.s))}</a></td><td>${o.qty}</td><td>${o.avg.toFixed(2)}</td><td>${pc}</td><td>${mv}</td><td>${pl}</td><td><button class="x" data-i="${i}">✕</button></td></tr>`});
- const d=tv-tc;h+=`<tr><td>合計</td><td colspan="2">成本 ${f$(tc)}</td><td></td><td>${ok?f$(tv):'—'}</td><td>${ok?`<span style="color:${d>=0?'#26a69a':'#ef5350'}">${f$(d)}<br>${(d/tc*100).toFixed(2)}%</span>`:'—'}</td><td></td></tr></table>`;
+const f$=n=>(n<0?'-$':'$')+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}),fN=n=>(n<0?'-':'')+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});
+const clr=d=>`style="color:${d>=0?'#26a69a':'#ef5350'}"`,pc=(d,c)=>(d>=0?'+':'')+(d/c*100).toFixed(2)+'%';
+function render(){if(!$('holdings'))return;const H=load();if(!H.length){$('holdings').innerHTML='<div class="note">尚無持股，請在下方新增。</div>';return}
+ const fx=FX||null;let tc=0,tcT=0,tv=0,ok=true,nl=0;
+ let h='<table class="hq"><tr><th>代號<br><small>股數/均價</small></th><th>現價<br><small>市值</small></th><th>美元損益</th><th>台幣損益</th><th></th></tr>';
+ H.forEach((o,i)=>{const F=full(o.s),q=LQ[F],bfx=o.fx||DFX,c=o.qty*o.avg,cT=c*bfx;tc+=c;tcT+=cT;
+  let p=q&&q.c!=null?q.c:null;if(p!=null)nl++;else p=PX[short(F)]??null;
+  let c2='—',u='—',t='—';
+  if(p!=null){const v=p*o.qty,d=v-c;tv+=v;c2=`${p.toFixed(2)}<br><small>${f$(v)}</small>`;u=`<span ${clr(d)}>${f$(d)}<br>${pc(d,c)}</span>`;
+   if(fx){const dT=v*fx-cT;t=`<span ${clr(dT)}>${fN(dT)}<br>${pc(dT,cT)}</span>`}}else ok=false;
+  h+=`<tr><td><a href="#" data-s="${esc(F)}">${esc(short(F))}</a><br><small>${o.qty}股 @${o.avg.toFixed(2)}<br>匯率 ${bfx}</small></td><td>${c2}</td><td>${u}</td><td>${t}</td><td><button class="x" data-i="${i}">✕</button></td></tr>`});
+ const d=tv-tc;let tT='—';if(ok&&fx){const dT=tv*fx-tcT;tT=`<span ${clr(dT)}>${fN(dT)}<br>${pc(dT,tcT)}</span>`}
+ h+=`<tr><td>合計<br><small>成本 ${f$(tc)}<br>NT$${fN(tcT)}</small></td><td>${ok?f$(tv):'—'}${ok&&fx?`<br><small>NT$${fN(tv*fx)}</small>`:''}</td><td>${ok?`<span ${clr(d)}>${f$(d)}<br>${pc(d,tc)}</span>`:'—'}</td><td>${tT}</td><td></td></tr></table>`;
+ h+=`<div class="note">現價：${nl===H.length?'即時（延遲約 15 分鐘）':nl?'部分即時、其餘用收盤價':'收盤價（prices.json）'}｜美元/台幣 ${fx?fx.toFixed(3)+'（更新於 '+FXT.toLocaleTimeString('zh-TW',{hour12:false})+'）':'讀取中…'}｜台幣損益 = 股數×現價×目前匯率 − 股數×均價×買進匯率</div>`;
  $('holdings').innerHTML=h;
  $('holdings').querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();chart(a.dataset.s)});
  $('holdings').querySelectorAll('.x').forEach(b=>b.onclick=()=>{const H=load();H.splice(+b.dataset.i,1);save(H);render()});}
 setInterval(refresh,30*60000);
 $('hf').onsubmit=e=>{e.preventDefault();let s=$('ht').value.trim().toUpperCase();
- if(!s.includes(':')){const f=GROUPS.flatMap(g=>g.symbols).find(x=>short(x)===s);if(f)s=f;}
- const H=load().filter(o=>o.s!==s);H.push({s,qty:+$('hq').value,avg:+$('ha').value});save(H);e.target.reset();refresh();};
+ s=full(s);const H=load().filter(o=>full(o.s)!==s);H.push({s,qty:+$('hq').value,avg:+$('ha').value,fx:+$('hx').value||DFX});save(H);e.target.reset();render();live();};
 // 分隔線拖曳
 (()=>{const W=document.querySelector('.wrap'),sp=$('sp'),K='watchlist.leftWidth.v2';
  const set=w=>{w=Math.max(240,Math.min(w,innerWidth-340));W.style.setProperty('--lw',w+'px');return w};
