@@ -18,6 +18,8 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;t
 .x{background:none;border:none;color:#e05561;font-size:16px;cursor:pointer}.note{font-size:11px;color:#6b7385;margin-top:6px}
 a{color:#5b8cff}
 #sp{display:none}
+.mq{width:100%;border-collapse:collapse;table-layout:fixed;font-size:15px}.mq td{padding:9px 6px;border-bottom:1px solid #222838;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mq tr{cursor:pointer}.mq tr:active{background:#1c2130}.mq td:nth-child(2),.mq td:nth-child(3){text-align:right;font-variant-numeric:tabular-nums}.mq td:nth-child(1){font-weight:600}.mq .up{color:#26a69a}.mq .dn{color:#ef5350}.mqd{font-size:12px;color:#8a93a6;margin-top:6px}
+@media(max-width:959.98px){#quotes{height:auto!important;min-height:0!important}}
 @media(min-width:960px){.wrap{display:grid;grid-template-columns:var(--lw,540px) 10px minmax(320px,1fr);grid-template-rows:auto 1fr;column-gap:0;row-gap:10px;align-items:start}.side{grid-column:1;grid-row:1;min-width:0}#hc{grid-column:1;grid-row:2;min-width:0}#cc{grid-column:3;grid-row:1/3;min-width:0}#chart{height:70vh}
 #sp{display:block;grid-column:2;grid-row:1/3;align-self:stretch;cursor:col-resize;touch-action:none;position:relative}#sp:after{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:#2c3243;border-radius:2px}#sp:hover:after,#sp.drag:after{background:#2962ff}body.drag iframe{pointer-events:none}body.drag{user-select:none;cursor:col-resize}}
 </style></head><body>
@@ -44,7 +46,15 @@ function embed(el,name,cfg){
  el.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%"></div></div>';
  const s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-'+name+'.js';s.async=true;
  s.textContent=JSON.stringify(cfg);el.firstChild.appendChild(s);}
-function quotes(i){[...$('tabs').children].forEach((b,j)=>b.classList.toggle('on',i===j));
+const MOB=matchMedia('(max-width:959.98px)');let CUR=0,QM=null;
+function mtable(i){const g=GROUPS[i];let ds=new Set(),h='<table class="mq">';
+ g.symbols.forEach(x=>{const o=PXO[short(x)];let pr='—',ch='—',c='';
+  if(o&&o.close!=null){pr=o.close.toFixed(o.close<10?3:2);if(o.date)ds.add(o.date);if(o.prev){const d=(o.close/o.prev-1)*100;c=d>=0?'up':'dn';ch=(d>=0?'+':'')+d.toFixed(2)+'%'}}
+  h+=`<tr data-s="${x}"><td>${short(x)}</td><td>${pr}</td><td class="${c}">${ch}</td></tr>`});
+ h+='</table><div class="mqd">收盤價日期：'+([...ds].sort().pop()||'—')+'（美東）・點列切換線圖</div>';
+ $('quotes').innerHTML=h;$('quotes').querySelectorAll('tr').forEach(r=>r.onclick=()=>chart(r.dataset.s));}
+function quotes(i){CUR=i;[...$('tabs').children].forEach((b,j)=>b.classList.toggle('on',i===j));
+ QM=MOB.matches;if(QM)return mtable(i);
  embed($('quotes'),'market-quotes',{width:"100%",height:"100%",colorTheme:"dark",isTransparent:true,locale:"zh_TW",showSymbolLogo:false,
   symbolsGroups:[{name:GROUPS[i].name,symbols:GROUPS[i].symbols.map(x=>({name:x,displayName:short(x)}))}]});}
 function chart(sym,init){document.querySelectorAll('#btns button').forEach(b=>b.classList.toggle('on',b.dataset.s===sym));
@@ -56,9 +66,10 @@ GROUPS.forEach((g,i)=>{const t=document.createElement('button');t.textContent=g.
 // 持股 (localStorage)
 const KEY='watchlist.holdings';const load=()=>JSON.parse(localStorage.getItem(KEY)||'[]'),save=h=>localStorage.setItem(KEY,JSON.stringify(h));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
-let PX={};
+let PX={},PXO={};
 async function refresh(){try{const r=await fetch('prices.json?t='+Date.now());const j=await r.json();PX={};const ds=new Set();
- for(const[k,v]of Object.entries(j.prices)){PX[k]=v.close;ds.add(v.date)}
+ PXO=j.prices;for(const[k,v]of Object.entries(j.prices)){PX[k]=v.close;ds.add(v.date)}
+ if(MOB.matches)mtable(CUR);
  $('st').textContent='收盤價日期：'+[...ds].sort().pop()+'（美東）｜持股只存在這台裝置';}catch(e){$('st').textContent='讀不到 prices.json：'+e}
  render();}
 const f$=n=>(n<0?'-$':'$')+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});
@@ -84,5 +95,6 @@ $('hf').onsubmit=e=>{e.preventDefault();let s=$('ht').value.trim().toUpperCase()
   const mv=ev=>{w=set(w0+ev.clientX-x0)},up=()=>{sp.classList.remove('drag');document.body.classList.remove('drag');localStorage.setItem(K,Math.round(w));sp.removeEventListener('pointermove',mv);sp.removeEventListener('pointerup',up);sp.removeEventListener('pointercancel',up)};
   sp.addEventListener('pointermove',mv);sp.addEventListener('pointerup',up);sp.addEventListener('pointercancel',up);});
  sp.ondblclick=()=>{localStorage.removeItem(K);W.style.removeProperty('--lw')};})();
+MOB.addEventListener('change',()=>{if(QM!==MOB.matches)quotes(CUR)});
 refresh();quotes(0);chart(GROUPS[0].symbols[1],true);
 </script></body></html>
