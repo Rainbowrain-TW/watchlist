@@ -20,6 +20,11 @@ a{color:#5b8cff}
 #sp{display:none}
 .mq{width:100%;border-collapse:collapse;table-layout:fixed;font-size:14px}.mq col.cs{width:6ch}.mq th{font-size:12px;color:#8a93a6;font-weight:400;padding:4px 3px}.mq td{padding:8px 3px;border-bottom:1px solid #222838;white-space:nowrap;overflow:hidden;text-overflow:clip}.mq th:first-child,.mq td:first-child{padding-left:0;text-align:left}.mq th:last-child,.mq td:last-child{padding-right:0}.mq tr{cursor:pointer}.mq tr:active{background:#1c2130}.mq td:not(:first-child),.mq th:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}.mq td:nth-child(1){font-weight:600}.mq .up{color:#26a69a}.mq .dn{color:#ef5350}.mqd{font-size:12px;color:#8a93a6;margin-top:6px}
 #quotes{height:auto!important;min-height:0!important}
+.warn{color:#f0b429}
+#mh summary{cursor:pointer;font-size:14px;color:#9aa3b5;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:32px}
+#mh summary::-webkit-details-marker{display:none}#mh summary:after{content:"▾";color:#6b7385}#mh[open] summary:after{content:"▴"}
+.ss{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;table-layout:fixed}.ss td,.ss th{padding:7px 4px;text-align:left;border-bottom:1px solid #232733}.ss th{font-size:12px;color:#8a93a6;font-weight:400}.ss tr.now td{background:#1c2a4a;color:#fff}.ss td:first-child{width:28%}
+.badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:12px;background:#2c3243;color:#d6d9e0;margin-left:4px}.badge.live{background:#1b5e20}
 @media(min-width:960px){.wrap{display:grid;grid-template-columns:var(--lw,300px) 10px minmax(320px,1fr);grid-template-rows:auto 1fr;column-gap:0;row-gap:10px;align-items:start}.side{grid-column:1;grid-row:1;min-width:0}#hc{grid-column:1;grid-row:2;min-width:0}#cc{grid-column:3;grid-row:1/3;min-width:0}#chart{height:70vh}
 #sp{display:block;grid-column:2;grid-row:1/3;align-self:stretch;cursor:col-resize;touch-action:none;position:relative}#sp:after{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:#2c3243;border-radius:2px}#sp:hover:after,#sp.drag:after{background:#2962ff}body.drag iframe{pointer-events:none}body.drag{user-select:none;cursor:col-resize}}
 .mqs{overflow-x:auto;-webkit-overflow-scrolling:touch}.mq td.nm{text-align:left!important;padding-left:10px;text-overflow:ellipsis;font-weight:400}.mq th:nth-child(5){text-align:left!important;padding-left:10px}
@@ -28,12 +33,13 @@ a{color:#5b8cff}
 <div class="wrap">
  <div class="side">
   <div class="card"><h3>報價</h3><div class="tabs" id="tabs"></div><div id="quotes"></div></div>
+  <div class="card"><details id="mh"><summary><span>🕒 美股交易時段 <span class="badge" id="mhb">…</span></span></summary><div id="mhc"></div></details></div>
  </div>
  <div id="sp" title="拖曳調整寬度"></div>
  <div class="card" id="cc"><h3>線圖 — 點代號切換</h3><div class="btns" id="btns"></div><div id="chart"></div></div>
 <div class="card" id="hc"><h3>持股（只存在這台裝置）</h3><div id="holdings"></div>
    <form class="f" id="hf"><input id="ht" placeholder="代號 如 NASDAQ:GOOGL" required><input id="hq" type="number" step="any" placeholder="股數" required><input id="ha" type="number" step="any" placeholder="均價(美元)" required><input id="hx" type="number" step="any" placeholder="買進匯率 31.55"><button>新增/更新</button></form>
-      <div class="note" id="st">持股只存在這台裝置的 localStorage，不會上傳。價格為最近一個美股交易日收盤價（prices.json，每天台北 06:30 自動更新）。</div></div>
+      <div class="note" id="st">持股只存在這台裝置的 localStorage，不會上傳。即時報價讀不到時改用最近一個美股交易日正盤收盤價（prices.json，每天台北 06:30 自動更新）。</div></div>
 </div>
 <script>
 // ===== 可編輯區 =====
@@ -49,15 +55,40 @@ function embed(el,name,cfg){
  s.textContent=JSON.stringify(cfg);el.firstChild.appendChild(s);}
 const MOB=matchMedia('(max-width:959.98px)');let CUR=0,QM=null;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
-let PX={},PXO={};const VERSION='v7';let LQ={},LQT=null,LQM='';
+let PX={},PXO={};const VERSION='v8';let LQ={},LQT=null,LQM='';
 const COLS=[['代號',52],['價格',68],['漲跌',62],['漲跌%',68],['名稱',150],['開盤',64],['最高',64],['最低',64],['昨收',64],['成交量',72]];
 let FX=null,FXT=null;
+// ===== 美股時段（America/New_York，自動處理夏令） =====
+const QS=new URLSearchParams(location.search),NOW=()=>QS.get('now')?new Date(QS.get('now')):new Date();
+// NYSE 休市日（2026–2027，半日市未計）
+const HOL=new Set(['2026-01-01','2026-01-19','2026-02-16','2026-04-03','2026-05-25','2026-06-19','2026-07-03','2026-09-07','2026-11-26','2026-12-25','2027-01-01','2027-01-18','2027-02-15','2027-03-26','2027-05-31','2027-06-18','2027-07-05','2027-09-06','2027-11-25','2027-12-24']);
+const NYF=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short'});
+function ny(d){const p={};NYF.formatToParts(d).forEach(x=>p[x.type]=x.value);const h=+p.hour%24;
+ const off=Math.round((Date.UTC(+p.year,p.month-1,+p.day,h,+p.minute,+p.second)-Math.floor(d/1000)*1000)/60000);
+ const ymd=`${p.year}-${p.month}-${p.day}`;return{ymd,wd:p.weekday,min:h*60+ +p.minute,off,dst:off===-240,trading:!['Sat','Sun'].includes(p.weekday)&&!HOL.has(ymd)}}
+const SESS=[['盤前',240,570],['正盤',570,960],['盤後',960,1200]];
+function session(d){const n=ny(d);if(!n.trading)return HOL.has(n.ymd)?'休市（假日）':'休市（週末）';const s=SESS.find(s=>n.min>=s[1]&&n.min<s[2]);return s?s[0]:'休市'}
+// 報價所屬的正盤交易日：正盤開始前的時間算前一個交易日
+function tday(d){let t=new Date(+d),n=ny(t);if(n.trading&&n.min>=570)return n.ymd;
+ for(let i=0;i<10;i++){t=new Date(t-864e5);n=ny(t);if(n.trading)return n.ymd}return n.ymd}
+const md=ymd=>{const[,m,d]=ymd.split('-');return(+m)+'/'+(+d)},twt=d=>d.toLocaleTimeString('zh-TW',{hour12:false,timeZone:'Asia/Taipei'});
+function qdates(){const ds={};GROUPS.flatMap(g=>g.symbols).forEach(x=>{const q=LQ[x],o=PXO[short(x)];const d=q&&q.c!=null&&q.t?tday(new Date(q.t*1000)):o&&o.date;if(d)(ds[d]=ds[d]||[]).push(short(x))});return ds}
+function qlabel(){const ds=qdates(),ks=Object.keys(ds).sort(),last=ks[ks.length-1],ss=session(NOW());
+ let t;if(ss==='正盤'&&LQT&&!LQM)t='延遲約 15 分鐘報價';else t=last?md(last)+' 正盤收盤價（不含盤前盤後）':'收盤價';
+ let w='';if(ks.length>1)w=`<div class="warn">⚠ 各檔報價日期不一致：${ks.map(k=>md(k)+'：'+ds[k].join(', ')).join('；')}</div>`;return{t,w}}
+function hours(){const d=NOW(),n=ny(d),ss=session(d),df=8*60-n.off;
+ const f=m=>{const t=m+df,h=Math.floor(t/60);return(h>=24?'隔日 ':'')+String(h%24).padStart(2,'0')+':'+String(t%60).padStart(2,'0')},e=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+ $('mhb').textContent='現在：'+ss;$('mhb').classList.toggle('live',ss==='正盤');
+ let h=`<div class="note" style="margin-top:4px">美東目前為<b>${n.dst?'夏令時間（EDT，UTC−4）':'冬令時間（EST，UTC−5）'}</b>，台灣比美東快 ${df/60} 小時。現在美東 ${n.ymd.slice(5).replace('-','/')} ${e(n.min)}（${n.wd}），盤別：<b>${ss}</b>。</div>`;
+ h+='<table class="ss"><tr><th>盤別</th><th>美東時間</th><th>台灣時間</th></tr>';
+ SESS.forEach(s=>{h+=`<tr class="${ss===s[0]?'now':''}"><td>${s[0]}${ss===s[0]?' ◀':''}</td><td>${e(s[1])}–${e(s[2])}</td><td>${f(s[1]).startsWith('隔日')?f(s[1])+'–'+f(s[2]).slice(3):f(s[1])+'–'+f(s[2])}</td></tr>`});
+ h+='</table><div class="note">台灣時間以美東當天日期為準，「隔日」指台灣的下一天。休市日已計入 2026–2027 年 NYSE 國定假日，半日市（提早收盤）未計。</div>';$('mhc').innerHTML=h}
 async function live(){const t=[...new Set([...GROUPS.flatMap(g=>g.symbols),...load().map(o=>full(o.s))])];
  fetch('https://scanner.tradingview.com/forex/scan',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({symbols:{tickers:['FX_IDC:USDTWD']},columns:['close']})}).then(r=>r.json()).then(j=>{const v=j.data[0].d[0];if(v){FX=v;FXT=new Date()}render()}).catch(e=>console.warn(e));
- try{const r=await fetch('https://scanner.tradingview.com/america/scan',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({symbols:{tickers:t},columns:['close','change_abs','change','description','open','high','low','volume','update_mode']})});
-  const j=await r.json();LQ={};j.data.forEach(o=>{const[c,a,d,n,op,hi,lo,v,m]=o.d;LQ[o.s]={c,a,d,n,op,hi,lo,v,m}});LQT=new Date();LQM='';}
+ try{const r=await fetch('https://scanner.tradingview.com/america/scan',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({symbols:{tickers:t},columns:['close','change_abs','change','description','open','high','low','volume','update_mode','update_time']})});
+  const j=await r.json();LQ={};j.data.forEach(o=>{const[c,a,d,n,op,hi,lo,v,m,t]=o.d;LQ[o.s]={c,a,d,n,op,hi,lo,v,m,t}});LQT=new Date();LQM='';}
  catch(e){LQM='即時報價讀取失敗，改用收盤價';console.warn(e)}
- mtable(CUR);render();}
+ mtable(CUR);render();hours();}
 const fp=v=>v==null?'—':v.toFixed(v<10?3:2),fv=v=>v==null?'—':v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':String(v);
 function mtable(i){const g=GROUPS[i];const tw=COLS.reduce((a,c)=>a+c[1],0);
  let h=`<div class="mqs"><table class="mq" style="width:${tw}px"><colgroup>${COLS.map(c=>`<col style="width:${c[1]}px">`).join('')}</colgroup><tr>${COLS.map(c=>`<th>${c[0]}</th>`).join('')}</tr>`;
@@ -67,12 +98,13 @@ function mtable(i){const g=GROUPS[i];const tw=COLS.reduce((a,c)=>a+c[1],0);
   else r=[null,null,null,'',null,null,null,null,null];
   const c=r[1]==null?'':r[1]>=0?'up':'dn',sg=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(2);
   h+=`<tr data-s="${x}"><td>${short(x)}</td><td>${fp(r[0])}</td><td class="${c}">${sg(r[1])}</td><td class="${c}">${r[2]==null?'—':sg(r[2])+'%'}</td><td class="nm" title="${esc(r[3]||'')}">${esc(r[3]||'')}</td><td>${fp(r[4])}</td><td>${fp(r[5])}</td><td>${fp(r[6])}</td><td>${fp(r[7])}</td><td>${fv(r[8])}</td></tr>`});
- h+='</table></div><div class="mqd">'+(LQT&&!LQM?'延遲約 15 分鐘報價・更新於 '+LQT.toLocaleTimeString('zh-TW',{hour12:false})+'（每 60 秒）':(LQM||'載入中…'))+'・點列切換線圖・左右滑看更多欄</div>';
+ const L=qlabel();h+='</table></div><div class="mqd">'+(LQM?LQM+'・':'')+L.t+(LQT?'・資料抓取 '+twt(LQT)+'（台灣，每 60 秒）':LQM?'':'・載入中…')+'・點列切換線圖・左右滑看更多欄'+L.w+'</div>';
  $('quotes').innerHTML=h;$('quotes').querySelectorAll('tr[data-s]').forEach(r=>r.onclick=()=>chart(r.dataset.s));}
 function quotes(i){CUR=i;[...$('tabs').children].forEach((b,j)=>b.classList.toggle('on',i===j));
  mtable(i);}
 function chart(sym,init){document.querySelectorAll('#btns button').forEach(b=>b.classList.toggle('on',b.dataset.s===sym));
- embed($('chart'),'advanced-chart',{autosize:true,symbol:sym,interval:"D",timezone:"Asia/Taipei",theme:"dark",style:"1",locale:"zh_TW",allow_symbol_change:true,withdateranges:true,calendar:false});
+ embed($('chart'),'advanced-chart',{autosize:true,symbol:sym,interval:"D",timezone:"Asia/Taipei",theme:"dark",style:"1",locale:"zh_TW",allow_symbol_change:true,withdateranges:true,calendar:false,
+  studies:[{id:"MASimple@tv-basicstudies",inputs:{length:30}},{id:"MASimple@tv-basicstudies",inputs:{length:90}},{id:"MASimple@tv-basicstudies",inputs:{length:200}}]});
  if(!init&&innerWidth<960)$('chart').scrollIntoView({behavior:'smooth',block:'start'});}
 GROUPS.forEach((g,i)=>{const t=document.createElement('button');t.textContent=g.name;t.onclick=()=>quotes(i);$('tabs').appendChild(t);
  const l=document.createElement('div');l.className='lbl';l.textContent=g.name;$('btns').appendChild(l);
@@ -86,7 +118,7 @@ function full(s){s=String(s).toUpperCase();if(s.includes(':'))return s;return GR
 async function refresh(){try{const r=await fetch('prices.json?t='+Date.now());const j=await r.json();PX={};const ds=new Set();
  PXO=j.prices;for(const[k,v]of Object.entries(j.prices)){PX[k]=v.close;ds.add(v.date)}
  mtable(CUR);
- $('st').textContent='收盤價日期：'+[...ds].sort().pop()+'（美東）｜持股只存在這台裝置';}catch(e){$('st').textContent='讀不到 prices.json：'+e}
+ $('st').textContent='備援收盤價日期：'+[...ds].sort().pop()+'（美東）｜持股只存在這台裝置';}catch(e){$('st').textContent='讀不到 prices.json：'+e}
  render();}
 const f$=n=>(n<0?'-$':'$')+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}),fN=n=>(n<0?'-':'')+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});
 const clr=d=>`style="color:${d>=0?'#26a69a':'#ef5350'}"`,pc=(d,c)=>(d>=0?'+':'')+(d/c*100).toFixed(2)+'%';
@@ -101,7 +133,7 @@ function render(){if(!$('holdings'))return;const H=load();if(!H.length){$('holdi
   h+=`<tr><td><a href="#" data-s="${esc(F)}">${esc(short(F))}</a><br><small>${o.qty}股 @${o.avg.toFixed(2)}<br>匯率 ${bfx}</small></td><td>${c2}</td><td>${u}</td><td>${t}</td><td><button class="x" data-i="${i}">✕</button></td></tr>`});
  const d=tv-tc;let tT='—';if(ok&&fx){const dT=tv*fx-tcT;tT=`<span ${clr(dT)}>${fN(dT)}<br>${pc(dT,tcT)}</span>`}
  h+=`<tr><td>合計<br><small>成本 ${f$(tc)}<br>NT$${fN(tcT)}</small></td><td>${ok?f$(tv):'—'}${ok&&fx?`<br><small>NT$${fN(tv*fx)}</small>`:''}</td><td>${ok?`<span ${clr(d)}>${f$(d)}<br>${pc(d,tc)}</span>`:'—'}</td><td>${tT}</td><td></td></tr></table>`;
- h+=`<div class="note">現價：${nl===H.length?'即時（延遲約 15 分鐘）':nl?'部分即時、其餘用收盤價':'收盤價（prices.json）'}｜美元/台幣 ${fx?fx.toFixed(3)+'（更新於 '+FXT.toLocaleTimeString('zh-TW',{hour12:false})+'）':'讀取中…'}｜台幣損益 = 股數×現價×目前匯率 − 股數×均價×買進匯率</div>`;
+ h+=`<div class="note">現價：${qlabel().t}${nl===H.length?'':nl?'（部分用 prices.json 收盤價）':'（prices.json）'}｜美元/台幣 ${fx?fx.toFixed(3)+'（更新於 '+FXT.toLocaleTimeString('zh-TW',{hour12:false})+'）':'讀取中…'}｜台幣損益 = 股數×現價×目前匯率 − 股數×均價×買進匯率</div>`;
  $('holdings').innerHTML=h;
  $('holdings').querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();chart(a.dataset.s)});
  $('holdings').querySelectorAll('.x').forEach(b=>b.onclick=()=>{const H=load();H.splice(+b.dataset.i,1);save(H);render()});}
@@ -119,5 +151,6 @@ $('hf').onsubmit=e=>{e.preventDefault();let s=$('ht').value.trim().toUpperCase()
  sp.ondblclick=()=>{localStorage.removeItem(K);W.style.removeProperty('--lw')};})();
 refresh();quotes(0);chart(GROUPS[0].symbols[1],true);
 live();setInterval(live,60000);
+hours();
 window.addEventListener('load',()=>console.log('watchlist version '+VERSION));
 </script></body></html>
