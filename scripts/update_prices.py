@@ -10,12 +10,19 @@ def yahoo(t):
     rows = [(ts, c) for ts, c in zip(j["timestamp"], j["indicators"]["quote"][0]["close"]) if c is not None]
     m = j["meta"]; ts, c = rows[-1]; prev = rows[-2][1] if len(rows) > 1 else m.get("chartPreviousClose")
     tz = datetime.timezone(datetime.timedelta(seconds=m.get("gmtoffset", 0)))
+    # 最新一根日K的 close 常是 None（Yahoo 尚未回填），改用 meta 的正盤價補上
+    rp, rt = m.get("regularMarketPrice"), m.get("regularMarketTime")
+    if rp is not None and rt and datetime.datetime.fromtimestamp(rt, tz).date() > datetime.datetime.fromtimestamp(ts, tz).date():
+        prev, ts, c = c, rt, rp
     return {"close": round(c, 4), "prev": round(prev, 4) if prev else None, "date": datetime.datetime.fromtimestamp(ts, tz).date().isoformat(), "src": "yahoo"}
 def stooq(t):
     rows = list(csv.DictReader(io.StringIO(get(f"https://stooq.com/q/d/l/?s={t.lower()}.us&i=d"))))[-2:]
     return {"close": float(rows[-1]["Close"]), "prev": float(rows[0]["Close"]) if len(rows) > 1 else None, "date": rows[-1]["Date"], "src": "stooq"}
 html = (ROOT / "index.html").read_text(encoding="utf-8")
 syms = sorted({s.split(":")[-1] for s in re.findall(r'"[A-Z]+:([A-Z.]+)"', html)} | set(re.findall(r'"(?:NASDAQ|NYSE|AMEX):([A-Z.]+)"', html)))
+# 持股可能有不在觀察清單的代號（例如 GOOGL），一併抓收盤備援
+EXTRA = {"GOOGL"}
+syms = sorted(set(syms) | EXTRA)
 old = {}
 p = ROOT / "prices.json"
 if p.exists(): old = json.loads(p.read_text()).get("prices", {})
