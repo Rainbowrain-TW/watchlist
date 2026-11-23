@@ -7,14 +7,16 @@ header{padding:10px 14px;font-size:17px;font-weight:600;border-bottom:1px solid 
 .wrap{display:flex;flex-direction:column;gap:10px;padding:10px}
 .card{background:#151821;border:1px solid #232733;border-radius:8px;padding:10px}
 h3{margin:2px 0 8px;font-size:14px;color:#9aa3b5}
-.tabs{display:flex;gap:6px;margin-bottom:8px}
-.tabs button,.btns button,.f button{background:#1e2330;color:#d6d9e0;border:1px solid #2c3243;border-radius:6px;cursor:pointer;font-size:14px;min-height:40px;padding:6px 12px}
-.tabs button{flex:1}.on{background:#2962ff!important;border-color:#2962ff!important;color:#fff!important}
+.tabbar{display:flex;gap:6px;align-items:stretch;margin-bottom:8px}
+.tabs{display:flex;gap:6px;flex:1;flex-wrap:wrap;margin-bottom:0}
+.tabs button,.btns button,.f button,#gedit,#gpanel button{background:#1e2330;color:#d6d9e0;border:1px solid #2c3243;border-radius:6px;cursor:pointer;font-size:14px;min-height:40px;padding:6px 12px}
+.tabs button{flex:1;min-width:4.8em}.on{background:#2962ff!important;border-color:#2962ff!important;color:#fff!important}
+#gedit{flex:0 0 auto;white-space:nowrap;align-self:flex-start}
 .btns{display:flex;flex-wrap:wrap;gap:6px}.btns button{min-width:56px}
 .lbl{width:100%;font-size:12px;color:#6b7385;margin-top:4px}
 #quotes{height:520px}#chart{height:60vh;min-height:360px;margin-top:8px}
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;text-align:right;border-bottom:1px solid #232733}td:first-child,th:first-child{text-align:left}.hq{table-layout:fixed;font-size:12.5px;font-variant-numeric:tabular-nums}.hq th:last-child,.hq td:last-child{width:30px}.hq small{color:#8a93a6;font-size:11px}.hq td{word-break:break-all}
-.f{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.f input{flex:1;min-width:80px;min-height:40px;background:#0f1115;color:#d6d9e0;border:1px solid #2c3243;border-radius:6px;padding:6px;font-size:14px}
+.f{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.f input,#gpanel input{flex:1;min-width:80px;min-height:40px;background:#0f1115;color:#d6d9e0;border:1px solid #2c3243;border-radius:6px;padding:6px;font-size:14px}
 .x{background:none;border:none;color:#e05561;font-size:16px;cursor:pointer}.note{font-size:11px;color:#6b7385;margin-top:6px}
 a{color:#5b8cff}
 #sp{display:none}
@@ -25,6 +27,13 @@ a{color:#5b8cff}
 #mh summary::-webkit-details-marker{display:none}#mh summary:after{content:"▾";color:#6b7385}#mh[open] summary:after{content:"▴"}
 .ss{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;table-layout:fixed}.ss td,.ss th{padding:7px 4px;text-align:left;border-bottom:1px solid #232733}.ss th{font-size:12px;color:#8a93a6;font-weight:400}.ss tr.now td{background:#1c2a4a;color:#fff}.ss td:first-child{width:28%}
 .badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:12px;background:#2c3243;color:#d6d9e0;margin-left:4px}.badge.live{background:#1b5e20}
+.gpanel{margin:0 0 10px;padding:8px 0 4px;border-top:1px solid #232733;border-bottom:1px solid #232733}
+.gitem{padding:8px 0;border-bottom:1px solid #1c2130}
+.gchips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.gchip{display:inline-flex;align-items:center;gap:2px;background:#1e2330;border:1px solid #2c3243;border-radius:6px;padding:4px 4px 4px 10px;font-size:13px;min-height:36px}
+.gjson{width:100%;min-height:88px;background:#0f1115;color:#d6d9e0;border:1px solid #2c3243;border-radius:6px;padding:8px;font-family:ui-monospace,Menlo,monospace;font-size:12px;margin-top:6px}
+#gmsg{min-height:1.4em}#gmsg.ok{color:#26a69a}#gmsg.err{color:#ef5350}
+#gpanel button.x{background:none;border:none;min-height:32px;min-width:32px;padding:0 4px;color:#e05561;font-size:16px}
 @media(min-width:960px){.wrap{display:grid;grid-template-columns:var(--lw,300px) 10px minmax(320px,1fr);grid-template-rows:auto 1fr;column-gap:0;row-gap:10px;align-items:start}.side{grid-column:1;grid-row:1;min-width:0}#hc{grid-column:1;grid-row:2;min-width:0}#cc{grid-column:3;grid-row:1/3;min-width:0}#chart{height:70vh}
 #sp{display:block;grid-column:2;grid-row:1/3;align-self:stretch;cursor:col-resize;touch-action:none;position:relative}#sp:after{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:#2c3243;border-radius:2px}#sp:hover:after,#sp.drag:after{background:#2962ff}body.drag iframe{pointer-events:none}body.drag{user-select:none;cursor:col-resize}}
 .mqs{overflow-x:auto;-webkit-overflow-scrolling:touch}.mq td.nm{text-align:left!important;padding-left:10px;text-overflow:ellipsis;font-weight:400}.mq th:nth-child(5){text-align:left!important;padding-left:10px}
@@ -32,7 +41,19 @@ a{color:#5b8cff}
 <header>📈 我的看盤頁</header>
 <div class="wrap">
  <div class="side">
-  <div class="card"><h3>報價</h3><div class="tabs" id="tabs"></div><div id="quotes"></div></div>
+  <div class="card"><h3>報價</h3>
+   <div class="tabbar"><div class="tabs" id="tabs"></div><button type="button" id="gedit">編輯</button></div>
+   <div id="gpanel" class="gpanel" hidden>
+    <div id="glist"></div>
+    <div class="f"><input id="gnew" placeholder="新群組名稱"><button type="button" id="gadd">新增群組</button></div>
+    <div class="f"><button type="button" id="greset">還原預設群組</button></div>
+    <div class="note">自訂代號沒有 prices.json 收盤備援，即時報價讀不到時會顯示 —。匯出／匯入可在手機和電腦之間同步。</div>
+    <textarea id="gjson" class="gjson" rows="4" placeholder="群組設定 JSON，可貼上後按匯入"></textarea>
+    <div class="f"><button type="button" id="gexp">匯出設定</button><button type="button" id="gimp">匯入設定</button></div>
+    <div class="note" id="gmsg"></div>
+   </div>
+   <div id="quotes"></div>
+  </div>
   <div class="card"><details id="mh"><summary><span>🕒 美股交易時段 <span class="badge" id="mhb">…</span></span></summary><div id="mhc"></div></details></div>
  </div>
  <div id="sp" title="拖曳調整寬度"></div>
@@ -42,22 +63,70 @@ a{color:#5b8cff}
       <div class="note" id="st">持股只存在這台裝置的 localStorage，不會上傳。即時報價讀不到時改用最近一個美股交易日正盤收盤價（prices.json，每天台北 06:30 自動更新）。</div></div>
 </div>
 <script>
-// ===== 可編輯區 =====
-const GROUPS = [
- {name:"第一群組", symbols:["NASDAQ:SPCX","NASDAQ:TSLA","NASDAQ:NVDA","NASDAQ:GOOG","NASDAQ:QQQ","NASDAQ:PLTR","NASDAQ:INTC","NASDAQ:AMZN","NYSE:CRM","NYSE:ORCL","NASDAQ:META","NASDAQ:MSFT","NASDAQ:MU"]},
+// ===== 內建預設群組 =====
+const DEFAULT_GROUPS = [
+ {name:"第一群組", symbols:["NASDAQ:SPCX","NASDAQ:TSLA","NASDAQ:NVDA","NASDAQ:GOOG","NASDAQ:QQQ","NASDAQ:PLTR","NASDAQ:INTC","NASDAQ:AMZN","NYSE:CRM","NYSE:ORCL","NASDAQ:META","NASDAQ:MSFT","NASDAQ:MU","NASDAQ:ANT"]},
  {name:"第二群組", symbols:["NYSE:RDW","NASDAQ:LUNR","NASDAQ:MNTS","NYSE:PL","NASDAQ:RKLB","NYSE:FIG","NYSE:P","NYSE:BBAI"]},
 ];
+// v9 之前的內建代號（沒有 seen 清單的舊設定，用這份當「已看過」，避免把使用者刪過的舊代號加回來，同時讓 ANT 等新代號能合併進去）
+const SEEN_BOOTSTRAP = ["NASDAQ:SPCX","NASDAQ:TSLA","NASDAQ:NVDA","NASDAQ:GOOG","NASDAQ:QQQ","NASDAQ:PLTR","NASDAQ:INTC","NASDAQ:AMZN","NYSE:CRM","NYSE:ORCL","NASDAQ:META","NASDAQ:MSFT","NASDAQ:MU","NYSE:RDW","NASDAQ:LUNR","NASDAQ:MNTS","NYSE:PL","NASDAQ:RKLB","NYSE:FIG","NYSE:P","NYSE:BBAI"];
 // ====================
 const $=id=>document.getElementById(id), short=s=>s.split(':').pop();
 function embed(el,name,cfg){
  el.innerHTML='<div class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:100%"></div></div>';
  const s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-'+name+'.js';s.async=true;
  s.textContent=JSON.stringify(cfg);el.firstChild.appendChild(s);}
-const MOB=matchMedia('(max-width:959.98px)');let CUR=0,QM=null;
+const MOB=matchMedia('(max-width:959.98px)');let CUR=0,QM=null,CHART_SYM=null;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
-let PX={},PXO={};const VERSION='v8';let LQ={},LQT=null,LQM='';
+let PX={},PXO={};const VERSION='v9';let LQ={},LQT=null,LQM='';
 const COLS=[['代號',52],['價格',68],['漲跌',62],['漲跌%',68],['名稱',150],['開盤',64],['最高',64],['最低',64],['昨收',64],['成交量',72]];
 let FX=null,FXT=null;
+const GS_KEY='watchlist.groups',EXS=['NASDAQ','NYSE','AMEX'];
+const SYM_RE=/^[A-Z][A-Z0-9._]*:[A-Z0-9][A-Z0-9.]*$/, TICK_RE=/^[A-Z0-9][A-Z0-9.]*$/;
+let GROUPS=[],SEEN=[];
+const cloneG=g=>g.map(x=>({name:x.name,symbols:x.symbols.slice()}));
+const allDef=()=>DEFAULT_GROUPS.flatMap(g=>g.symbols);
+function normalizeGroups(arr){
+ if(!Array.isArray(arr))return null;const out=[];
+ for(const g of arr){
+  if(!g||typeof g.name!=='string'||!g.name.trim()||!Array.isArray(g.symbols))return null;
+  const symbols=[];
+  for(const s of g.symbols){
+   if(typeof s!=='string')return null;
+   const u=s.trim().toUpperCase();
+   if(!SYM_RE.test(u))return null;
+   if(!symbols.includes(u))symbols.push(u);
+  }
+  out.push({name:g.name.trim(),symbols});
+ }
+ return out;
+}
+function mergeGroups(raw){
+ if(raw==null)return{groups:cloneG(DEFAULT_GROUPS),seen:allDef()};
+ let groups=null,seen=null;
+ if(Array.isArray(raw))groups=normalizeGroups(raw);
+ else if(raw&&typeof raw==='object'){
+  groups=normalizeGroups(raw.groups);
+  if(Array.isArray(raw.seen))seen=raw.seen.map(s=>String(s).toUpperCase());
+ }
+ if(!groups||!groups.length)return{groups:cloneG(DEFAULT_GROUPS),seen:allDef()};
+ if(!seen)seen=SEEN_BOOTSTRAP.slice();
+ const seenSet=new Set(seen);
+ for(const dg of DEFAULT_GROUPS){
+  for(const sym of dg.symbols){
+   if(seenSet.has(sym))continue;
+   const ug=groups.find(g=>g.name===dg.name);
+   if(ug){if(!ug.symbols.includes(sym))ug.symbols.push(sym);seenSet.add(sym)}
+  }
+ }
+ return{groups,seen:[...seenSet]};
+}
+function persist(){localStorage.setItem(GS_KEY,JSON.stringify({groups:GROUPS,seen:SEEN}))}
+function loadGroups(){
+ let raw=null;try{raw=JSON.parse(localStorage.getItem(GS_KEY)||'null')}catch(e){raw=null}
+ const existed=raw!=null,r=mergeGroups(raw);
+ GROUPS=r.groups;SEEN=r.seen;if(existed)persist();
+}
 // ===== 美股時段（America/New_York，自動處理夏令） =====
 const QS=new URLSearchParams(location.search),NOW=()=>QS.get('now')?new Date(QS.get('now')):new Date();
 // NYSE 休市日（2026–2027，半日市未計）
@@ -90,25 +159,124 @@ async function live(){const t=[...new Set([...GROUPS.flatMap(g=>g.symbols),...lo
  catch(e){LQM='即時報價讀取失敗，改用收盤價';console.warn(e)}
  mtable(CUR);render();hours();}
 const fp=v=>v==null?'—':v.toFixed(v<10?3:2),fv=v=>v==null?'—':v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1e3).toFixed(1)+'K':String(v);
-function mtable(i){const g=GROUPS[i];const tw=COLS.reduce((a,c)=>a+c[1],0);
+function mtable(i){const g=GROUPS[i];
+ if(!g){$('quotes').innerHTML='<div class="note">尚無群組。</div>';return}
+ if(!g.symbols.length){const L=qlabel();$('quotes').innerHTML='<div class="note">此群組尚無標的，請按「編輯」新增。</div><div class="mqd">'+(LQM?LQM+'・':'')+L.t+(LQT?'・資料抓取 '+twt(LQT)+'（台灣，每 60 秒）':LQM?'':'・載入中…')+L.w+'</div>';return}
+ const tw=COLS.reduce((a,c)=>a+c[1],0);
  let h=`<div class="mqs"><table class="mq" style="width:${tw}px"><colgroup>${COLS.map(c=>`<col style="width:${c[1]}px">`).join('')}</colgroup><tr>${COLS.map(c=>`<th>${c[0]}</th>`).join('')}</tr>`;
  g.symbols.forEach(x=>{const q=LQ[x],o=PXO[short(x)];let r;
   if(q&&q.c!=null){const pv=q.a!=null?q.c-q.a:null;r=[q.c,q.a,q.d,q.n,q.op,q.hi,q.lo,pv,q.v]}
   else if(o&&o.close!=null){const a=o.prev?o.close-o.prev:null;r=[o.close,a,o.prev?(o.close/o.prev-1)*100:null,'',null,null,null,o.prev,null]}
   else r=[null,null,null,'',null,null,null,null,null];
   const c=r[1]==null?'':r[1]>=0?'up':'dn',sg=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(2);
-  h+=`<tr data-s="${x}"><td>${short(x)}</td><td>${fp(r[0])}</td><td class="${c}">${sg(r[1])}</td><td class="${c}">${r[2]==null?'—':sg(r[2])+'%'}</td><td class="nm" title="${esc(r[3]||'')}">${esc(r[3]||'')}</td><td>${fp(r[4])}</td><td>${fp(r[5])}</td><td>${fp(r[6])}</td><td>${fp(r[7])}</td><td>${fv(r[8])}</td></tr>`});
+  h+=`<tr data-s="${esc(x)}"><td>${esc(short(x))}</td><td>${fp(r[0])}</td><td class="${c}">${sg(r[1])}</td><td class="${c}">${r[2]==null?'—':sg(r[2])+'%'}</td><td class="nm" title="${esc(r[3]||'')}">${esc(r[3]||'')}</td><td>${fp(r[4])}</td><td>${fp(r[5])}</td><td>${fp(r[6])}</td><td>${fp(r[7])}</td><td>${fv(r[8])}</td></tr>`});
  const L=qlabel();h+='</table></div><div class="mqd">'+(LQM?LQM+'・':'')+L.t+(LQT?'・資料抓取 '+twt(LQT)+'（台灣，每 60 秒）':LQM?'':'・載入中…')+'・點列切換線圖・左右滑看更多欄'+L.w+'</div>';
  $('quotes').innerHTML=h;$('quotes').querySelectorAll('tr[data-s]').forEach(r=>r.onclick=()=>chart(r.dataset.s));}
 function quotes(i){CUR=i;[...$('tabs').children].forEach((b,j)=>b.classList.toggle('on',i===j));
  mtable(i);}
-function chart(sym,init){document.querySelectorAll('#btns button').forEach(b=>b.classList.toggle('on',b.dataset.s===sym));
+function chart(sym,init){CHART_SYM=sym;document.querySelectorAll('#btns button').forEach(b=>b.classList.toggle('on',b.dataset.s===sym));
  embed($('chart'),'advanced-chart',{autosize:true,symbol:sym,interval:"D",timezone:"Asia/Taipei",theme:"dark",style:"1",locale:"zh_TW",allow_symbol_change:true,withdateranges:true,calendar:false,
   studies:[{id:"MASimple@tv-basicstudies",inputs:{length:30}},{id:"MASimple@tv-basicstudies",inputs:{length:90}},{id:"MASimple@tv-basicstudies",inputs:{length:200}}]});
  if(!init&&innerWidth<960)$('chart').scrollIntoView({behavior:'smooth',block:'start'});}
-GROUPS.forEach((g,i)=>{const t=document.createElement('button');t.textContent=g.name;t.onclick=()=>quotes(i);$('tabs').appendChild(t);
- const l=document.createElement('div');l.className='lbl';l.textContent=g.name;$('btns').appendChild(l);
- g.symbols.forEach(x=>{const b=document.createElement('button');b.textContent=short(x);b.dataset.s=x;b.onclick=()=>chart(x);$('btns').appendChild(b)});});
+function renderGroups(){
+ $('tabs').innerHTML='';$('btns').innerHTML='';
+ GROUPS.forEach((g,i)=>{
+  const t=document.createElement('button');t.type='button';t.textContent=g.name;t.onclick=()=>quotes(i);$('tabs').appendChild(t);
+  const l=document.createElement('div');l.className='lbl';l.textContent=g.name;$('btns').appendChild(l);
+  g.symbols.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=short(x);b.dataset.s=x;b.onclick=()=>chart(x);$('btns').appendChild(b)});
+ });
+ if(CUR>=GROUPS.length)CUR=Math.max(0,GROUPS.length-1);
+ quotes(CUR);
+ if(CHART_SYM)document.querySelectorAll('#btns button').forEach(b=>b.classList.toggle('on',b.dataset.s===CHART_SYM));
+}
+function gmsg(t,ok){const el=$('gmsg');el.textContent=t||'';el.className='note'+(t?ok?' ok':' err':'')}
+function renderGPanel(){
+ $('glist').innerHTML=GROUPS.map((g,i)=>{
+  const chips=g.symbols.map((x,si)=>`<span class="gchip" title="${esc(x)}">${esc(short(x))}<button type="button" class="x" data-act="rm" data-i="${i}" data-si="${si}" aria-label="移除 ${esc(short(x))}">✕</button></span>`).join('')||'<span class="note">尚無標的</span>';
+  return `<div class="gitem"><div class="f"><input class="gnm" data-i="${i}" value="${esc(g.name)}"><button type="button" data-act="ren" data-i="${i}">改名</button><button type="button" data-act="del" data-i="${i}">刪除</button></div><div class="gchips">${chips}</div><div class="f"><input class="gsym" data-i="${i}" placeholder="代號，如 ANT 或 NYSE:CRM"><button type="button" data-act="add" data-i="${i}">新增代號</button></div></div>`;
+ }).join('');
+ $('glist').querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>gact(b.dataset.act,+b.dataset.i,b.dataset.si==null?null:+b.dataset.si));
+ $('glist').querySelectorAll('.gsym').forEach(inp=>inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();gact('add',+inp.dataset.i)}}));
+ $('glist').querySelectorAll('.gnm').forEach(inp=>inp.addEventListener('change',()=>renameGroup(+inp.dataset.i,inp.value)));
+}
+async function gact(act,i,si){
+ if(act==='rm'){const s=GROUPS[i].symbols.splice(si,1)[0];persist();renderGroups();renderGPanel();live();gmsg('已從「'+GROUPS[i].name+'」移除 '+short(s),true);return}
+ if(act==='del'){
+  if(GROUPS.length<=1){gmsg('至少要保留一個群組',false);return}
+  if(!confirm('確定刪除群組「'+GROUPS[i].name+'」？'))return;
+  const n=GROUPS[i].name;GROUPS.splice(i,1);if(CUR>=GROUPS.length)CUR=GROUPS.length-1;persist();renderGroups();renderGPanel();live();gmsg('已刪除群組「'+n+'」',true);return}
+ if(act==='ren'){renameGroup(i,$('glist').querySelector(`.gnm[data-i="${i}"]`).value);return}
+ if(act==='add'){const inp=$('glist').querySelector(`.gsym[data-i="${i}"]`);await addSymbol(i,inp?inp.value:'');}
+}
+function renameGroup(i,name){
+ name=String(name||'').trim();
+ if(!name){gmsg('群組名稱不能空白',false);renderGPanel();return}
+ if(GROUPS.some((g,j)=>j!==i&&g.name===name)){gmsg('已有相同名稱的群組',false);renderGPanel();return}
+ if(GROUPS[i].name===name)return;
+ GROUPS[i].name=name;persist();renderGroups();renderGPanel();gmsg('已改名為「'+name+'」',true);
+}
+async function resolveSymbol(s){
+ s=String(s||'').trim().toUpperCase().replace(/\s+/g,'');
+ if(!s)return{error:'請輸入代號'};
+ const scan=async tickers=>{
+  const r=await fetch('https://scanner.tradingview.com/america/scan',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({symbols:{tickers},columns:['close']})});
+  return r.json();
+ };
+ try{
+  if(s.includes(':')){
+   if(!SYM_RE.test(s))return{error:'代號格式不正確'};
+   const j=await scan([s]);
+   const hit=(j.data||[]).find(o=>o.d&&o.d[0]!=null);
+   if(!hit)return{error:'找不到這個代號，請確認後再試'};
+   return{symbol:s};
+  }
+  if(!TICK_RE.test(s))return{error:'代號格式不正確'};
+  const tickers=EXS.map(ex=>ex+':'+s),j=await scan(tickers);
+  const found=new Set((j.data||[]).filter(o=>o.d&&o.d[0]!=null).map(o=>o.s));
+  for(const t of tickers){if(found.has(t))return{symbol:t}}
+  return{error:'找不到這個代號，請確認後再試，或輸入完整代號如 NYSE:CRM'};
+ }catch(e){console.warn(e);return{error:'查詢失敗，請稍後再試'}}
+}
+async function addSymbol(i,raw){
+ const r=await resolveSymbol(raw);
+ if(r.error){gmsg(r.error,false);return}
+ if(GROUPS[i].symbols.includes(r.symbol)){gmsg('此群組已有 '+r.symbol,false);return}
+ GROUPS[i].symbols.push(r.symbol);persist();renderGroups();renderGPanel();live();
+ const inp=$('glist').querySelector(`.gsym[data-i="${i}"]`);if(inp)inp.value='';
+ gmsg('已新增 '+r.symbol,true);
+}
+function addGroup(){
+ const name=($('gnew').value||'').trim();
+ if(!name){gmsg('請輸入群組名稱',false);return}
+ if(GROUPS.some(g=>g.name===name)){gmsg('已有相同名稱的群組',false);return}
+ GROUPS.push({name,symbols:[]});$('gnew').value='';CUR=GROUPS.length-1;persist();renderGroups();renderGPanel();gmsg('已新增群組「'+name+'」',true);
+}
+function resetGroups(){
+ if(!confirm('確定要還原成預設群組？自訂的群組與標的都會被清除。'))return;
+ GROUPS=cloneG(DEFAULT_GROUPS);SEEN=allDef();persist();renderGroups();renderGPanel();live();gmsg('已還原預設群組',true);
+}
+async function exportGroups(){
+ const t=JSON.stringify({groups:GROUPS,seen:SEEN},null,2);
+ $('gjson').value=t;$('gjson').focus();$('gjson').select();
+ try{await navigator.clipboard.writeText(t);gmsg('已匯出並複製到剪貼簿，可貼到另一台裝置匯入。',true)}
+ catch(e){gmsg('已匯出，請複製下方 JSON。',true)}
+}
+function importGroups(){
+ const t=($('gjson').value||'').trim();
+ if(!t){gmsg('請先貼上要匯入的 JSON',false);return}
+ let raw;try{raw=JSON.parse(t)}catch(e){gmsg('JSON 格式不正確',false);return}
+ let groups=null,seen=null;
+ if(Array.isArray(raw)){groups=normalizeGroups(raw);if(groups)seen=[...new Set([...SEEN,...groups.flatMap(g=>g.symbols)])]}
+ else if(raw&&typeof raw==='object'){groups=normalizeGroups(raw.groups);seen=Array.isArray(raw.seen)?raw.seen.map(s=>String(s).toUpperCase()):(groups?[...new Set([...SEEN,...groups.flatMap(g=>g.symbols)])]:null)}
+ if(!groups||!groups.length){gmsg('匯入的資料沒有有效群組',false);return}
+ if(!confirm('匯入會覆蓋目前的群組設定，確定嗎？'))return;
+ GROUPS=groups;SEEN=seen&&seen.length?seen:SEEN;persist();renderGroups();renderGPanel();live();gmsg('已匯入群組設定',true);
+}
+function bindEditor(){
+ $('gedit').onclick=()=>{const p=$('gpanel'),open=p.hidden;p.hidden=!open;$('gedit').textContent=open?'完成':'編輯';$('gedit').classList.toggle('on',open);if(open){renderGPanel();gmsg('')}};
+ $('gadd').onclick=addGroup;$('gnew').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addGroup()}});
+ $('greset').onclick=resetGroups;$('gexp').onclick=exportGroups;$('gimp').onclick=importGroups;
+}
 // 持股 (localStorage)
 const KEY='watchlist.holdings',DFX=31.55;const load=()=>JSON.parse(localStorage.getItem(KEY)||'[]'),save=h=>localStorage.setItem(KEY,JSON.stringify(h));
 function full(s){s=String(s).toUpperCase();if(s.includes(':'))return s;return GROUPS.flatMap(g=>g.symbols).find(x=>short(x)===s)||'NASDAQ:'+s}
@@ -149,7 +317,12 @@ $('hf').onsubmit=e=>{e.preventDefault();let s=$('ht').value.trim().toUpperCase()
   const mv=ev=>{w=set(w0+ev.clientX-x0)},up=()=>{sp.classList.remove('drag');document.body.classList.remove('drag');localStorage.setItem(K,Math.round(w));sp.removeEventListener('pointermove',mv);sp.removeEventListener('pointerup',up);sp.removeEventListener('pointercancel',up)};
   sp.addEventListener('pointermove',mv);sp.addEventListener('pointerup',up);sp.addEventListener('pointercancel',up);});
  sp.ondblclick=()=>{localStorage.removeItem(K);W.style.removeProperty('--lw')};})();
-refresh();quotes(0);chart(GROUPS[0].symbols[1],true);
+loadGroups();
+renderGroups();
+bindEditor();
+refresh();
+const prefer=(GROUPS[0]&&GROUPS[0].symbols.find(s=>s==='NASDAQ:TSLA'))||(GROUPS[0]&&GROUPS[0].symbols[0]);
+if(prefer)chart(prefer,true);
 live();setInterval(live,60000);
 hours();
 window.addEventListener('load',()=>console.log('watchlist version '+VERSION));
