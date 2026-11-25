@@ -1,142 +1,142 @@
 {
- "updated": "2026-11-24T22:36:05+00:00",
+ "updated": "2026-11-25T22:35:29+00:00",
  "prices": {
   "AMZN": {
-   "close": 252.29,
-   "prev": 255.39,
-   "date": "2026-11-24",
+   "close": 244.43,
+   "prev": 252.29,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "ANT": {
-   "close": 81.905,
-   "prev": 87.64,
-   "date": "2026-11-24",
+   "close": 82.79,
+   "prev": 81.91,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "BBAI": {
-   "close": 1.54,
-   "prev": 1.65,
-   "date": "2026-11-24",
+   "close": 1.59,
+   "prev": 1.54,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "CRM": {
-   "close": 193.26,
-   "prev": 185.46,
-   "date": "2026-11-24",
+   "close": 197.21,
+   "prev": 193.26,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "FIG": {
-   "close": 16.95,
-   "prev": 17.1,
-   "date": "2026-11-24",
+   "close": 17.11,
+   "prev": 16.95,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "GOOG": {
-   "close": 276.58,
-   "prev": 279.53,
-   "date": "2026-11-24",
+   "close": 270.98,
+   "prev": 276.58,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "GOOGL": {
-   "close": 279.05,
-   "prev": 282.1,
-   "date": "2026-11-24",
+   "close": 273.1,
+   "prev": 279.05,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "INTC": {
-   "close": 54.8,
-   "prev": 59.66,
-   "date": "2026-11-24",
+   "close": 54.47,
+   "prev": 54.8,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "LUNR": {
-   "close": 8.93,
-   "prev": 9.75,
-   "date": "2026-11-24",
+   "close": 9.14,
+   "prev": 8.93,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "META": {
-   "close": 589.82,
-   "prev": 597.6,
-   "date": "2026-11-24",
+   "close": 609.89,
+   "prev": 589.82,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "MNTS": {
-   "close": 2.04,
-   "prev": 2.05,
-   "date": "2026-11-24",
+   "close": 2.02,
+   "prev": 2.04,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "MSFT": {
-   "close": 496.13,
-   "prev": 492.5,
-   "date": "2026-11-24",
+   "close": 489.93,
+   "prev": 496.13,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "MU": {
-   "close": 629.79,
-   "prev": 707.7,
-   "date": "2026-11-24",
+   "close": 601.25,
+   "prev": 629.79,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "NVDA": {
-   "close": 155.38,
-   "prev": 165.05,
-   "date": "2026-11-24",
+   "close": 149.3,
+   "prev": 155.38,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "ORCL": {
-   "close": 109.5,
-   "prev": 113.68,
-   "date": "2026-11-24",
+   "close": 103.88,
+   "prev": 109.5,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "P": {
-   "close": 92.2,
-   "prev": 101.01,
-   "date": "2026-11-24",
+   "close": 94.69,
+   "prev": 92.2,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "PL": {
-   "close": 10.64,
-   "prev": 11.21,
-   "date": "2026-11-24",
+   "close": 10.61,
+   "prev": 10.64,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "PLTR": {
-   "close": 161.18,
-   "prev": 159.36,
-   "date": "2026-11-24",
+   "close": 163.59,
+   "prev": 161.18,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "QQQ": {
-   "close": 638.1,
-   "prev": 651.03,
-   "date": "2026-11-24",
+   "close": 633.93,
+   "prev": 638.1,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "RDW": {
-   "close": 5.9,
-   "prev": 6.42,
-   "date": "2026-11-24",
+   "close": 5.89,
+   "prev": 5.9,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "RKLB": {
-   "close": 45.98,
-   "prev": 49.63,
-   "date": "2026-11-24",
+   "close": 47.02,
+   "prev": 45.98,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "SPCX": {
-   "close": 125.81,
-   "prev": 133.35,
-   "date": "2026-11-24",
+   "close": 127.44,
+   "prev": 125.81,
+   "date": "2026-11-25",
    "src": "yahoo"
   },
   "TSLA": {
-   "close": 384.68,
-   "prev": 385.46,
-   "date": "2026-11-24",
+   "close": 380.14,
+   "prev": 384.68,
+   "date": "2026-11-25",
    "src": "yahoo"
   }
  }
